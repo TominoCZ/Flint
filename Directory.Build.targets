@@ -1,0 +1,22 @@
+<Project>
+
+  <!-- Release output carries no debug symbols, including the native .pdb files that NuGet packages such as
+       SkiaSharp and HarfBuzzSharp ship for Windows. Directory.Build.props already stops our own. -->
+
+  <!-- Plain builds (run.sh): drop them from the package assets before they are copied into bin/. -->
+  <Target Name="DropPackageSymbolsFromBuild" AfterTargets="ResolvePackageAssets" Condition="'$(Configuration)' == 'Release'">
+    <ItemGroup>
+      <RuntimeTargetsCopyLocalItems Remove="@(RuntimeTargetsCopyLocalItems)" Condition="'%(Extension)' == '.pdb'" />
+      <NativeCopyLocalItems Remove="@(NativeCopyLocalItems)" Condition="'%(Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Publish (build-*.sh/.bat): the single-file bundler hands symbol files back as "not bundled", so they are
+       removed at the last point before the publish copy is planned. -->
+  <Target Name="DropPackageSymbolsFromPublish" BeforeTargets="_ComputeResolvedFilesToPublishTypes" Condition="'$(Configuration)' == 'Release'">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Extension)' == '.pdb'" />
+    </ItemGroup>
+  </Target>
+
+</Project>

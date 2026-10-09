@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Flint.App/Flint.App.csproj" />
+    <Project Path="src/Flint.Bluetooth/Flint.Bluetooth.csproj" />
+    <Project Path="src/Flint.Core/Flint.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Flint.App.Tests/Flint.App.Tests.csproj" />
+    <Project Path="tests/Flint.Core.Tests/Flint.Core.Tests.csproj" />
+  </Folder>
+  <Folder Name="/spikes/">
+    <Project Path="spikes/BluezProbe/BluezProbe.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/SparkLog/SparkLog.csproj" />
+  </Folder>
+</Solution>

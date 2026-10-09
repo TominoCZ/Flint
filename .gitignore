@@ -1,0 +1,21 @@
+# Research inputs and outputs: Positive Grid's APK, decompiled code and assets.
+# Personal use only. None of it may land in this (public) repo; scripts/decompile.sh regenerates it.
+research/*
+
+# Development notes (plan, handoff, open questions, research findings): local only
+/docs/
+
+# Assets extracted from the APK at build time
+/assets/
+/assets.new/
+
+# .NET
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+
+# Session tooling
+.ponytail/
+artifacts/
