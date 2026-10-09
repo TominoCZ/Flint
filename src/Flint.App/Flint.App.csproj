@@ -29,6 +29,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <AssemblyName>Flint</AssemblyName>
+    <ApplicationIcon>Flint.ico</ApplicationIcon> <!-- FlintIcon's drawing; FlintIconTests keeps the two the same -->
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 

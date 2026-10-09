@@ -33,4 +33,56 @@ public sealed class FlintIconTests(Headless headless, ITestOutputHelper output)
         }
         await Task.CompletedTask;
     });
+
+    // Windows shows an exe's icon from an .ico built into it (Flint.App.csproj's ApplicationIcon), so Flint.ico is this
+    // drawing at the sizes Explorer and the taskbar ask for, each a PNG. Written by this test when FLINT_WRITE_ICON=1.
+    [Fact]
+    public Task The_exe_icon_is_this_drawing() => headless.Run(async () =>
+    {
+        var ico = Ico([16, 24, 32, 48, 64, 256]);
+        var path = Path.Combine(Repo(), "src", "Flint.App", "Flint.ico");
+        if (Environment.GetEnvironmentVariable("FLINT_WRITE_ICON") == "1") File.WriteAllBytes(path, ico);
+        Assert.True(File.Exists(path) && File.ReadAllBytes(path).AsSpan().SequenceEqual(ico),
+                    "Flint.ico is not the drawing in FlintIcon: run this test with FLINT_WRITE_ICON=1 to rewrite it");
+        await Task.CompletedTask;
+    });
+
+    /// <summary>An .ico of PNG images: a 6-byte header, a 16-byte entry per image, then the images.</summary>
+    private static byte[] Ico(int[] sizes)
+    {
+        var images = sizes.Select(size =>
+        {
+            using var icon = FlintIcon.Render(size);
+            using var png = new MemoryStream();
+            icon.Save(png, new PngBitmapEncoderOptions());
+            return png.ToArray();
+        }).ToList();
+        using var ico = new MemoryStream();
+        using var w = new BinaryWriter(ico);
+        w.Write((short)0); // reserved
+        w.Write((short)1); // an icon, not a cursor
+        w.Write((short)sizes.Length);
+        var offset = 6 + 16 * sizes.Length;
+        for (var i = 0; i < sizes.Length; i++)
+        {
+            w.Write((byte)(sizes[i] % 256)); // 256 is written as 0
+            w.Write((byte)(sizes[i] % 256));
+            w.Write((byte)0); // no palette
+            w.Write((byte)0);
+            w.Write((short)1); // planes
+            w.Write((short)32); // bits per pixel
+            w.Write(images[i].Length);
+            w.Write(offset);
+            offset += images[i].Length;
+        }
+        foreach (var image in images) w.Write(image);
+        return ico.ToArray();
+    }
+
+    private static string Repo()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (!File.Exists(Path.Combine(dir.FullName, "Flint.slnx"))) dir = dir.Parent!;
+        return dir.FullName;
+    }
 }
