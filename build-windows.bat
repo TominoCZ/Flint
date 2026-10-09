@@ -1,6 +1,6 @@
 @echo off
 rem  Publishes Flint for Windows as one optimised Flint.exe: every library is bundled inside it,
-rem  ReadyToRun-compiled for a fast start, with no debug symbols. The .NET runtime is left out (it adds 115 MB):
+rem  ReadyToRun-compiled for a fast start, with no debug symbols. The .NET runtime is left out (it adds 100 MB):
 rem  the target machine needs the .NET 10 Runtime, and Flint.exe offers its download when that is missing.
 rem
 rem  Output: artifacts\win-x64\Flint.exe
@@ -22,6 +22,11 @@ exit /b 2
 :parsed
 
 if "%CLEAN%"=="true" if exist artifacts rmdir /s /q artifacts
+
+rem  ReadyToRun keeps its compiled copies in obj\ and does not notice when the runtime they were built against changes
+rem  (self-contained or not): a stale copy makes an exe that exits at once without a word. So they are compiled afresh.
+set "R2R=src\Flint.App\obj\Release\net10.0\%RID%\R2R"
+if exist "%R2R%" rmdir /s /q "%R2R%"
 
 dotnet publish src\Flint.App\Flint.App.csproj -nologo -v q ^
   -c Release -r %RID% -o artifacts\%RID% ^
