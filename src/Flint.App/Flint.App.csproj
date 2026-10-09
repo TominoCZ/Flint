@@ -9,6 +9,11 @@
     <InternalsVisibleTo Include="Flint.App.Tests" />
   </ItemGroup>
 
+  <!-- Setup's jadx helper, compiled from FlintDecompile.java beside it, so a Java runtime without a compiler runs it. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Setup\FlintDecompile.class" LogicalName="FlintDecompile.class" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.2" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.2" />

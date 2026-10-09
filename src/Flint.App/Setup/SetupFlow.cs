@@ -166,7 +166,7 @@ internal sealed class SetupFlow(string target, string? apkm = null)
             Set(StepState.Running, "Downloading jadx, which unpacks it", 0);
             await Jadx.InstallAsync(Bar(p => $"Downloading jadx, which unpacks it: {p:P0}"), cancel);
         }
-        Set(StepState.Running, "Unpacking (about a minute)", 0);
+        Set(StepState.Running, "Unpacking", 0);
         var step = _current;
         var parts = new Progress<(int Done, int Total)>(p => Update(step, $"Unpacking: {p.Done:N0} of {p.Total:N0} parts", (double)p.Done / p.Total));
         await Jadx.DecompileAsync(Path.Combine(SetupPaths.Apks, "base.apk"), SetupPaths.Decompiled, parts, cancel);
@@ -208,11 +208,18 @@ internal sealed class SetupFlow(string target, string? apkm = null)
         if (_steps[step].State is not (StepState.NeedsYou or StepState.Done)) Set(StepState.Running, detail);
     }
 
-    private void Reset(int step) => _steps[step] = _steps[step] with { State = StepState.Waiting, Detail = "", Progress = null, Command = null };
+    private void Reset(int step)
+    {
+        lock (_steps) _steps[step] = _steps[step] with { State = StepState.Waiting, Detail = "", Progress = null, Command = null };
+    }
 
+    /// <summary>Under a lock, Changed too: progress reports may come on several threads at once, where there is no UI thread.</summary>
     private void Set(StepState state, string detail, double? progress = null, string? command = null)
     {
-        _steps[_current] = _steps[_current] with { State = state, Detail = detail, Progress = progress, Command = command };
-        Changed?.Invoke();
+        lock (_steps)
+        {
+            _steps[_current] = _steps[_current] with { State = state, Detail = detail, Progress = progress, Command = command };
+            Changed?.Invoke();
+        }
     }
 }
