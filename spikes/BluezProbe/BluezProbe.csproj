@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Spike: drives the Spark 2 from Linux through the app's own link, session and supervisor. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Flint.Bluetooth\Flint.Bluetooth.csproj" />
+    <ProjectReference Include="..\..\tools\SparkLog\SparkLog.csproj" />
+  </ItemGroup>
+
+</Project>

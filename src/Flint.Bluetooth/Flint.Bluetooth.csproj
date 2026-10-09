@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- The ILink implementations and nothing else. WinRT joins once the Windows target exists. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\Flint.Core\Flint.Core.csproj" />
+    <!-- The version Avalonia 12.1.2 already brings in on Linux, so the app gains no dependency. -->
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.94.1" />
+  </ItemGroup>
+
+</Project>
