@@ -21,14 +21,14 @@ presets and turn knobs from your desk. If the amp turns off or the connection dr
 - **Amp settings:** name, auto standby and shutdown, line-out mute.
 - Stays in the system tray and can start when you log in.
 
-**Platforms:** Linux. Windows is not supported yet.
+**Platforms:** Linux and Windows 10/11.
 
 ## Setup
 
-You need a Linux PC with Bluetooth, the [.NET 10 SDK](https://dotnet.microsoft.com/download) to build Flint, and
-an Android phone with the Spark app on it.
+You need a Linux or Windows PC with Bluetooth, the [.NET 10 SDK](https://dotnet.microsoft.com/download) to build
+Flint, and an Android phone with the Spark app on it.
 
-**1. Build and install:**
+**1. Build and install.** On Linux:
 
 ```bash
 ./build-linux.sh --install
@@ -36,6 +36,15 @@ an Android phone with the Spark app on it.
 
 This puts the app in `~/.local/bin/Flint`. The first time it starts, **Flint** is added to your
 application menu.
+
+On Windows:
+
+```bat
+build-windows.bat
+```
+
+This builds `artifacts\win-x64\Flint.exe`, a single file you can put anywhere. It runs on the .NET 10 Runtime,
+which the SDK includes; on a computer without it, Flint.exe offers the download.
 
 **2. Start it and follow the setup screen.** Flint looks like the Spark app because it uses the app's own
 images, fonts and panel layouts, which it takes from the Spark app on your phone. The first time it starts, the setup
@@ -60,22 +69,23 @@ When the Spark app updates with new amps or effects, right-click the tray icon a
 3. Closing the window leaves the app running in the tray. Right-click the tray icon for **Start at login** and
    **Quit**. Started at login, it waits in the tray; started any other way, its window opens. GNOME shows a tray icon only with the AppIndicator extension. Without it, closing the window quits.
 
-**Presets** are kept in `~/.local/share/Flint/presets/`, in the same JSON format the Spark app uses. On the
-Tone screen, the ⋮ menu has **Export preset…** and **Import presets…**. To back up your library, copy that folder.
+**Presets** are kept in `~/.local/share/Flint/presets/` on Linux and `%LOCALAPPDATA%\Flint\presets\` on Windows,
+in the same JSON format the Spark app uses. On the Tone screen, the ⋮ menu has **Export preset…** and
+**Import presets…**. To back up your library, copy that folder.
 
 ## Troubleshooting
 
 **The amp is never found.**
 
-- Check that Bluetooth Low Energy is on. If `/etc/bluetooth/main.conf` has `ControllerMode = bredr`, change it to
-  `dual` (the default) or `le`, then run `sudo systemctl restart bluetooth`.
+- Check that Bluetooth is on. On Linux, Bluetooth Low Energy must be on too: if `/etc/bluetooth/main.conf` has
+  `ControllerMode = bredr`, change it to `dual` (the default) or `le`, then run `sudo systemctl restart bluetooth`.
 - Make sure no phone or other device is connected to the amp.
 
-**Access denied.** If the log shows `org.freedesktop.DBus.Error.AccessDenied`, your distribution limits Bluetooth to
-a user group. Add yourself to that group and log in again.
+**Access denied (Linux).** If the log shows `org.freedesktop.DBus.Error.AccessDenied`, your distribution limits
+Bluetooth to a user group. Add yourself to that group and log in again.
 
-**Logs** are written to `~/.local/share/Flint/logs/`, one file per day, kept for 14 days. To keep them
-somewhere else, set `FLINT_LOG_DIR`. Include the log when you report a problem.
+**Logs** are written to `~/.local/share/Flint/logs/` on Linux and `%LOCALAPPDATA%\Flint\logs\` on Windows, one file
+per day, kept for 14 days. To keep them somewhere else, set `FLINT_LOG_DIR`. Include the log when you report a problem.
 
 ## License
 
