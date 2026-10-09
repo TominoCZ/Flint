@@ -151,7 +151,7 @@ internal sealed class LooperPage : Grid
             _length.Text = _bpm.Text = _beats.Text = "--"; // with the click off the app shows no time settings
         }
         if (looper.Phase == LooperPhase.Ready)
-            _ring.Art = Art(timing is null || timing.FreeLength ? "bg_looper_free" : $"bg_looper_{timing.Beats}_{timing.Bars:00}");
+            _ring.Art = Art(timing is null || timing.FreeLength || !timing.CountIn ? "bg_looper_free" : $"bg_looper_{timing.Beats}_{timing.Bars:00}");
 
         _main.Source = Art(looper.Phase switch
         {

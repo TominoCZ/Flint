@@ -75,7 +75,7 @@ public sealed record AmpState(
         (Opcode.LooperState, UIntValue action) => this with { Looper = Looper.Reported((LooperAction)action.Value) },
         (Opcode.LooperProgress, FloatValue progress) when Looper.Phase is LooperPhase.Playing or LooperPhase.Dubbing
             => this with { Looper = Looper with { Progress = progress.Value } },
-        (Opcode.LooperTimeSignature, LooperTimeSignature timing) => this with { Looper = Looper with { Timing = timing } },
+        (Opcode.LooperTimeSignature, LooperTimeSignature timing) => this with { Looper = Looper.Reported(timing) },
         (Opcode.Settings, SettingInfo settings) => this with { Settings = settings },
         (Opcode.LineOutMute, BoolValue muted) => this with { LineOutMuted = muted.Value },
         _ => this,

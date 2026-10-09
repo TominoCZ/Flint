@@ -295,17 +295,13 @@ public sealed class AmpController : IAsyncDisposable
     {
         var session = ReadySession();
         var timing = await session.GetAsync<LooperTimeSignature>(Opcode.GetLooperTimeSignature, null, ct);
-        Update(s => s with { Looper = s.Looper with { Timing = timing } });
+        Update(s => s with { Looper = s.Looper.Reported(timing) });
         var action = (LooperAction)(await session.GetAsync<UIntValue>(Opcode.GetLooperAction, null, ct)).Value;
         Update(s => s with { Looper = s.Looper.Reported(action, initial: true) });
     }
 
-    /// <summary>The looper's settings page: tempo, length and count-in (<c>01 76</c>, acked <c>04 76</c>).</summary>
-    public async Task SetLooperTimingAsync(LooperTimeSignature timing, CancellationToken ct = default)
-    {
-        await ReadySession().RequestAsync(Opcode.SetLooperTimeSignature, timing, ct);
-        Update(s => s with { Looper = s.Looper with { Timing = timing } });
-    }
+    /// <summary>The looper's settings page: tempo, length and count-in, kept here and not sent (see <see cref="Looper.Chose"/>).</summary>
+    public void ChooseLooperTiming(LooperTimeSignature timing) => Update(s => s with { Looper = s.Looper.Chose(timing) });
 
     /// <summary>The library entry a slot holds, or null while the slot waits for the owner's answer or has none.</summary>
     public string? EntryOfSlot(int slot) =>

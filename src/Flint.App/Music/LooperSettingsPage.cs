@@ -12,8 +12,8 @@ namespace Flint.App.Music;
 /// <summary>
 /// The Simple Looper's settings (<c>fragment_looper_settings.xml</c>, <c>LooperSettingPage</c>): the tempo wheel, Click
 /// (count-in and metronome), Loop Length (1–16 bars or Free) and Count (Shuffle is 3 beats, Straight 4), and Reset.
-/// Each change goes to the amp at once as its time signature (<c>01 76</c>). The app's Ending row is the Groove
-/// Looper's and is left out with it.
+/// Each change is kept by Flint, not sent: the app sends no <c>01 76</c> from here, and the owner's amp hung when we did.
+/// The app's Ending row is the Groove Looper's and is left out with it.
 /// </summary>
 internal static class LooperSettingsPage
 {
@@ -57,25 +57,32 @@ internal static class LooperSettingsPage
             rows.Switch(text.Text("looper_settings_click_title"), text.Text("looper_settings_click_desc"), timing.CountIn,
                 () => Send(timing.Bpm, !timing.CountIn, bars, timing.Beats)),
             Line(),
-            rows.Info(text.Text("looper_settings_looplength_title"), length.Length, open: () => stack.Push(Picker(stack, "looper_settings_looplengthmenu_title",
+            WithClick(rows.Info(text.Text("looper_settings_looplength_title"), length.Length, open: () => stack.Push(Picker(stack, "looper_settings_looplengthmenu_title",
                 Lengths, t => t.FreeLength ? 0 : t.Bars, (t, n) => Looper.TimingFor(t.Bpm, t.CountIn, n, t.Beats, t.MaxRecordingLength),
-                n => LooperPage.Labels(text, Default with { Bars = n, FreeLength = n == 0 }).Length))),
-            rows.Info(text.Text("looper_settings_timesig_title"), length.Beats, open: () => stack.Push(Picker(stack, "looper_settings_countmenu_title",
+                n => LooperPage.Labels(text, Default with { Bars = n, FreeLength = n == 0 }).Length)))),
+            WithClick(rows.Info(text.Text("looper_settings_timesig_title"), length.Beats, open: () => stack.Push(Picker(stack, "looper_settings_countmenu_title",
                 Counts, t => t.Beats, (t, n) => Looper.TimingFor(t.Bpm, t.CountIn, t.FreeLength ? 0 : t.Bars, n, t.MaxRecordingLength),
-                n => LooperPage.Labels(text, Default with { Beats = n }).Beats))),
+                n => LooperPage.Labels(text, Default with { Beats = n }).Beats)))),
             resetButton));
         return page;
+
+        // With the click off there is no length to keep to: the app greys Loop Length and Count out (LooperSettingPage.E0).
+        Control WithClick(Control row)
+        {
+            (row.IsEnabled, row.Opacity) = (timing.CountIn, timing.CountIn ? 1 : 0.2);
+            return row;
+        }
 
         Control Line() => new Border { Height = 1, Background = rows.Colour("grey930"), Margin = new Thickness(0, 28, 0, 0) };
 
         void Send(uint bpm, bool click, uint barCount, uint beats)
         {
             var next = Looper.TimingFor(Math.Max(bpm, Looper.MinBpm(barCount, beats, timing.MaxRecordingLength)), click, barCount, beats, timing.MaxRecordingLength);
-            stack.Run("set the looper", () => stack.Amp.SetLooperTimingAsync(next));
+            stack.Amp.ChooseLooperTiming(next);
         }
     }
 
-    /// <summary>Loop Length's and Count's lists: the choices, the current one ticked; a pick goes to the amp at once.</summary>
+    /// <summary>Loop Length's and Count's lists: the choices, the current one ticked; a pick is kept at once.</summary>
     private static TabPage Picker(PageStack stack, string title, uint[] choices, Func<LooperTimeSignature, uint> current,
         Func<LooperTimeSignature, uint, LooperTimeSignature> with, Func<uint, string> label) => new(s => s.Looper.Timing ?? Default, s =>
     {
@@ -86,7 +93,7 @@ internal static class LooperSettingsPage
             {
                 var next = with(stack.Amp.State?.Looper.Timing ?? Default, choice);
                 next = next with { Bpm = Math.Max(next.Bpm, Looper.MinBpm(next.FreeLength ? 0 : next.Bars, next.Beats, next.MaxRecordingLength)) };
-                stack.Run("set the looper", () => stack.Amp.SetLooperTimingAsync(next));
+                stack.Amp.ChooseLooperTiming(next);
             }));
         var page = new DockPanel { Background = stack.Rows.Colour("grey900") };
         DockPanel.SetDock(rows[0], Dock.Top);

@@ -88,8 +88,9 @@ public sealed class LooperPageTests(Headless headless, ITestOutputHelper output)
             Save(window, "looper-settings");
             Tap(window, "Loop Length");
             Tap(window, "8 Bars");
-            await Until(() => _amp.LooperTiming.Bars == 8);
-            Assert.Equal(new LooperTimeSignature(120, 4, 8, false, true, false, 60), _amp.LooperTiming);
+            await Until(() => _controller.State!.Looper.Timing!.Bars == 8);
+            Assert.Equal(new LooperTimeSignature(120, 4, 8, false, true, false, 60), _controller.State!.Looper.Timing);
+            Assert.Equal(4u, _amp.LooperTiming.Bars); // kept by Flint, never sent: the amp hung on 01 76
             window.Close();
         });
     }
