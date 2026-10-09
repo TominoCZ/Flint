@@ -46,7 +46,12 @@ public sealed class SetupFlowTests(ITestOutputHelper output) : IDisposable
         {
             lock (seen) seen.AddRange(flow.Steps.Where(s => s.State != StepState.Waiting).Select(s => $"{s.Title}: {s.State}: {s.Detail}"));
         };
+        // The screen reads the steps on the UI thread while setup changes them on others, so what it reads must stay
+        // readable however much they change meanwhile: a live list throws "Collection was modified" here.
+        using var reading = flow.Steps.GetEnumerator();
+        reading.MoveNext();
         await flow.RunAsync(CancellationToken.None);
+        reading.MoveNext();
 
         output.WriteLine(string.Join("\n", seen.Distinct()));
         Assert.True(flow.Finished, flow.Steps.FirstOrDefault(s => s.State == StepState.Failed)?.Detail);

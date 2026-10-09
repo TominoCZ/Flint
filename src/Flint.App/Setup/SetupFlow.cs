@@ -23,7 +23,14 @@ internal sealed class SetupFlow(string target, string? apkm = null)
     /// <summary>Raised on whatever thread made the change.</summary>
     public event Action? Changed;
 
-    public IReadOnlyList<SetupStep> Steps => _steps;
+    /// <summary>A copy: the steps change on whatever thread setup is on, while the screen reads them on the UI thread.</summary>
+    public IReadOnlyList<SetupStep> Steps
+    {
+        get
+        {
+            lock (_steps) return [.. _steps];
+        }
+    }
 
     public bool Finished { get; private set; }
 
@@ -192,7 +199,8 @@ internal sealed class SetupFlow(string target, string? apkm = null)
     /// <summary>A progress report, which arrives later than it was made: it must not undo the step's end.</summary>
     private void Update(int step, string detail, double? progress)
     {
-        if (step == _current && _steps[step].State == StepState.Running) Set(StepState.Running, detail, progress);
+        lock (_steps)
+            if (step == _current && _steps[step].State == StepState.Running) Set(StepState.Running, detail, progress);
     }
 
     private void Start(int step, string detail, double? progress = null)
