@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Protocol, amp state and the connection state machine. No UI and no OS calls. -->
+
+</Project>
