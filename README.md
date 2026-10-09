@@ -1,3 +1,5 @@
+<img width="1288" height="896" alt="image" src="https://github.com/user-attachments/assets/e3ec432c-8ea7-431c-ba08-386306f17a90" />
+
 # Flint
 
 Control your **Positive Grid Spark 2** guitar amp from your computer, without needing a phone.
