@@ -1,11 +1,12 @@
 @echo off
-rem  Publishes Flint for Windows as one self-contained, optimised Flint.exe: the .NET runtime and
-rem  every library are bundled inside it, ReadyToRun-compiled for a fast start, with no debug symbols.
-rem  The target machine needs nothing installed.
+rem  Publishes Flint for Windows as one optimised Flint.exe: every library is bundled inside it,
+rem  ReadyToRun-compiled for a fast start, with no debug symbols. The .NET runtime is left out (it adds 115 MB):
+rem  the target machine needs the .NET 10 Runtime, and Flint.exe offers its download when that is missing.
 rem
 rem  Output: artifacts\win-x64\Flint.exe
 rem  Usage:  build-windows.bat [--arch win-arm64] [--clean]
-rem  The Linux twin is build-linux.sh; keep the two in step.
+rem  The Linux twin is build-linux.sh; keep the two in step, but for this: Linux bundles the runtime, which a
+rem  per-user ~/.dotnet would not be found from the application menu.
 setlocal
 cd /d "%~dp0"
 
@@ -24,7 +25,7 @@ if "%CLEAN%"=="true" if exist artifacts rmdir /s /q artifacts
 
 dotnet publish src\Flint.App\Flint.App.csproj -nologo -v q ^
   -c Release -r %RID% -o artifacts\%RID% ^
-  -p:SelfContained=true ^
+  -p:SelfContained=false ^
   -p:PublishSingleFile=true ^
   -p:IncludeNativeLibrariesForSelfExtract=true ^
   -p:PublishReadyToRun=true ^
