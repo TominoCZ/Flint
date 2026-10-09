@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Decodes the official Spark app's Bluetooth traffic out of logcat, live. Run by scripts/spark-log.sh. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Flint.Core\Flint.Core.csproj" />
+  </ItemGroup>
+
+</Project>
