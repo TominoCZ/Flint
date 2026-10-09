@@ -25,8 +25,7 @@ if "%CLEAN%"=="true" if exist artifacts rmdir /s /q artifacts
 
 rem  ReadyToRun keeps its compiled copies in obj\ and does not notice when the runtime they were built against changes
 rem  (self-contained or not): a stale copy makes an exe that exits at once without a word. So they are compiled afresh.
-set "R2R=src\Flint.App\obj\Release\net10.0\%RID%\R2R"
-if exist "%R2R%" rmdir /s /q "%R2R%"
+for /d %%f in (src\Flint.App\obj\Release\*) do if exist "%%f\%RID%\R2R" rmdir /s /q "%%f\%RID%\R2R"
 
 dotnet publish src\Flint.App\Flint.App.csproj -nologo -v q ^
   -c Release -r %RID% -o artifacts\%RID% ^

@@ -1,6 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- The ILink implementations and nothing else. WinRT joins once the Windows target exists. -->
+  <!-- The ILink implementations and nothing else: BlueZ on Linux, WinRT in the Windows build. -->
+  <PropertyGroup>
+    <TargetFramework />
+    <TargetFrameworks>net10.0;net10.0-windows10.0.19041.0</TargetFrameworks>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting> <!-- so Linux builds the Windows target too -->
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetPlatformIdentifier)' != 'Windows'">
+    <Compile Remove="WinRT/**" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Flint.Core\Flint.Core.csproj" />

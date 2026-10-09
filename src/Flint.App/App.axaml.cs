@@ -4,6 +4,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Flint.App.Assets;
 using Flint.Bluetooth.BlueZ;
+#if WINDOWS
+using Flint.Bluetooth.WinRT;
+#endif
 using Flint.Core.Connection;
 using Flint.Core.Library;
 using Flint.Core.Logging;
@@ -14,7 +17,7 @@ namespace Flint.App;
 public partial class App : Application
 {
     private AppSettings _settings = AppSettings.Load();
-    private BlueZLink? _link;
+    private Func<string?>? _linkAddress;
 
     /// <summary>The amp, for <see cref="Program"/> to release once the window is gone.</summary>
     internal AmpController? Amp { get; private set; }
@@ -58,14 +61,20 @@ public partial class App : Application
 
     private ILink NewLink()
     {
-        if (!OperatingSystem.IsLinux()) throw new PlatformNotSupportedException("the Windows Bluetooth link is not written yet");
-        return _link = new BlueZLink(_settings.Address);
+#if WINDOWS
+        var link = new WinRtLink(_settings.Address);
+#else
+        if (!OperatingSystem.IsLinux()) throw new PlatformNotSupportedException("this build has no Bluetooth link for this OS: Windows needs build-windows.bat's");
+        var link = new BlueZLink(_settings.Address);
+#endif
+        _linkAddress = () => link.Address;
+        return link;
     }
 
     /// <summary>The first run found the amp by name; every later run connects to that address straight away.</summary>
     private void RememberAmp(AmpController amp)
     {
-        if (amp.Link != LinkState.Ready || _settings.Address is not null || _link?.Address is not { } address) return;
+        if (amp.Link != LinkState.Ready || _settings.Address is not null || _linkAddress?.Invoke() is not { } address) return;
         _settings = _settings with { Address = address };
         try
         {

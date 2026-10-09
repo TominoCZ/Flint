@@ -20,7 +20,12 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />
   </ItemGroup>
 
-  <!-- Windows will need net10.0-windows10.0.19041.0 for the WinRT Bluetooth link. -->
+  <!-- Published for Windows (-r win-*), the app takes the Windows target, which has the WinRT Bluetooth link. -->
+  <PropertyGroup Condition="$(RuntimeIdentifier.StartsWith('win'))">
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <AssemblyName>Flint</AssemblyName>
