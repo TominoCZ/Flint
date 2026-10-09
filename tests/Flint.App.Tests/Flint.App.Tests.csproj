@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Window and control checks on Avalonia.Headless, driven by hand rather than Avalonia.Headless.XUnit,
+       which needs xunit v3. Checks that need the owner's assets/ pass with a note when it is missing. -->
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageReference Include="Avalonia.Headless" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Skia" Version="12.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Flint.App\Flint.App.csproj" />
+    <!-- FakeAmp and FakeLink: the whole amp in memory, with its captured presets. -->
+    <ProjectReference Include="..\Flint.Core.Tests\Flint.Core.Tests.csproj" />
+  </ItemGroup>
+
+</Project>

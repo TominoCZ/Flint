@@ -1,0 +1,45 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Flint.App.MainWindow"
+        Title="Flint" Width="1280" Height="860" MinWidth="400" MinHeight="600" Background="#101010">
+  <!-- The tab's screen (Tone, Music, Menu) fills the window, with the app's tab bar under it and a bar below that holding the
+       link state. The tuner opens over everything, and the setup screen over that. Banners appear above the screen only when there is something to say. -->
+  <Window.Styles>
+    <Style Selector="Border.banner">
+      <Setter Property="Padding" Value="14,10" />
+    </Style>
+  </Window.Styles>
+
+  <Grid>
+  <DockPanel>
+    <LayoutTransformControl x:Name="BottomBar" DockPanel.Dock="Bottom">
+      <Border Background="#18181a" Padding="12,6,12,8">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Ellipse x:Name="StatusDot" Width="9" Height="9" VerticalAlignment="Center" />
+          <TextBlock x:Name="StatusText" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+      </Border>
+    </LayoutTransformControl>
+    <LayoutTransformControl x:Name="TabBar" DockPanel.Dock="Bottom" IsVisible="False" />
+
+    <Border x:Name="WarningBar" Classes="banner" DockPanel.Dock="Top" Background="#5c4500" IsVisible="False">
+      <TextBlock x:Name="WarningText" TextWrapping="Wrap" />
+    </Border>
+
+    <Border x:Name="SyncPanel" Classes="banner" DockPanel.Dock="Top" Background="#262626" IsVisible="False">
+      <StackPanel Spacing="10">
+        <TextBlock x:Name="SyncTitle" FontWeight="SemiBold" TextWrapping="Wrap" />
+        <StackPanel x:Name="SyncRows" Spacing="6" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button x:Name="RestoreAll" />
+          <Button x:Name="KeepAll" Content="Keep all the amp's" />
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <ContentControl x:Name="ToneHost" />
+  </DockPanel>
+  <ContentControl x:Name="Overlay" IsVisible="False" />
+  <ContentControl x:Name="SetupHost" IsVisible="False" />
+  </Grid>
+</Window>

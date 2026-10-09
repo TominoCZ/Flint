@@ -1,0 +1,9 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Flint.App.App"
+             RequestedThemeVariant="Dark">
+  <!-- Dark only, like the phone app. Its real colours and fonts come from the APK in Phase 3. -->
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+</Application>
