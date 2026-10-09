@@ -21,11 +21,11 @@ internal static partial class PanelBindings
         var cls = m.Groups[1].Value.Split('.')[^1];
         // One-letter class names repeat across packages: follow the mapper's own import.
         var qualified = m.Groups[1].Value.Contains('.') ? m.Groups[1].Value : Regex.Match(mapper, $@"import ([\w.]+\.{cls});").Groups[1].Value;
-        var path = Path.Combine(sources.Root, qualified.Replace('.', '/') + ".java");
-        var impl = File.ReadAllText(path);
+        var path = qualified.Replace('.', '/') + ".java";
+        var impl = sources.Read(path);
         var indices = ViewIndex().Matches(SuperCall().Match(impl).Groups[1].Value).Select(i => int.Parse(i.Groups[1].Value)).ToList();
         var baseName = Regex.Match(impl, $@"class {cls} extends (\w+)").Groups[1].Value;
-        var baseCode = File.ReadAllText(Path.Combine(Path.GetDirectoryName(path)!, baseName + ".java"));
+        var baseCode = sources.Read(Path.Combine(Path.GetDirectoryName(path)!, baseName + ".java"));
         var ctor = Regex.Match(baseCode, "protected " + baseName + @"\(Object \w+, View \w+, int \w+, (.*?)\) \{(.*?)\n    \}", RegexOptions.Singleline);
         var parameters = ctor.Groups[1].Value.Split(',').Select(p => p.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)[^1]).ToList();
         var fieldOf = new Dictionary<string, string>();

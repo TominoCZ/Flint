@@ -59,4 +59,28 @@ public sealed class SetupParsingTests
         Assert.Null(Jadx.Progress("INFO  - processing ..."));
         Assert.Null(Jadx.Progress("ERROR - finished with errors, count: 156"));
     }
+
+    [Fact]
+    public void Jadx_sources_with_windows_line_endings_read_the_same()
+    {
+        // jadx ends lines as the OS does; the noise gate's one entry is read line by line, so \r\n once lost it on Windows.
+        var root = Directory.CreateTempSubdirectory("flint-crlf-").FullName;
+        try
+        {
+            var model = Directory.CreateDirectory(Path.Combine(root, "com", "positivegrid", "spark", "model")).FullName;
+            File.WriteAllText(Path.Combine(model, "FxNoiseGate.java"),
+                "public enum FxNoiseGate implements d {\r\n" +
+                "    NoiseGate(\"bias.noisegate\", \"NoiseGate\", R.drawable.module_icon_ng_25_noisegate, a.f48867a.g());\r\n\r\n" +
+                "    private final String dspID;\r\n}\r\n");
+            var sources = new JavaSources(root);
+            var errors = new List<string>();
+            var entry = Assert.Single(ModelEnums.Entries("FxNoiseGate", sources, new ResourceNames(sources), errors));
+            Assert.Empty(errors);
+            Assert.Equal("bias.noisegate", (string?)entry["dspId"]);
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+    }
 }
