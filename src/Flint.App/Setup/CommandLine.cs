@@ -6,11 +6,14 @@ namespace Flint.App.Setup;
 /// <summary>Runs a tool (adb, java, jadx) to its end, handing each line it prints to the caller as it comes.</summary>
 internal static class CommandLine
 {
-    /// <summary>The exit code and everything printed, stdout and stderr together. Cancelling kills the tool and its children.</summary>
+    /// <summary>
+    /// The exit code and everything printed, stdout and stderr together. Cancelling kills the tool and its children.
+    /// No console window: on Windows a GUI app's console child would otherwise open one for each run.
+    /// </summary>
     public static async Task<(int ExitCode, string Output)> RunAsync(string file, IEnumerable<string> args, CancellationToken cancel,
                                                                      Action<string>? line = null, IDictionary<string, string>? environment = null)
     {
-        var start = new ProcessStartInfo(file, args) { RedirectStandardOutput = true, RedirectStandardError = true };
+        var start = new ProcessStartInfo(file, args) { RedirectStandardOutput = true, RedirectStandardError = true, CreateNoWindow = true };
         foreach (var (key, value) in environment ?? new Dictionary<string, string>()) start.Environment[key] = value;
         using var process = Process.Start(start) ?? throw new IOException($"{file} did not start");
         var output = new System.Text.StringBuilder();

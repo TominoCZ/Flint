@@ -41,7 +41,8 @@ public partial class App : Application
             DesktopEntry.Install(icon);
             Autostart.Refresh(icon);
             Tray = new Tray(this, desktop, window, icon, window.ShowSetup);
-            _ = Tray.StartAsync(show: desktop.Args?.Contains(Autostart.Minimized) != true); // in the tray only at login
+            // In the tray only at login, and not before there is artwork: closing setup's window quits.
+            _ = Tray.StartAsync(show: desktop.Args?.Contains(Autostart.Minimized) != true, tray: assets is not null);
             if (assets is null) window.ShowSetup();
             amp.Start();
         }

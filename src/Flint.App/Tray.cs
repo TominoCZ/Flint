@@ -37,9 +37,10 @@ internal sealed class Tray
     }
 
     /// <summary>Puts the icon in the tray and shows the window if <paramref name="show"/>, or, with no tray, shows the window anyway.</summary>
-    public async Task StartAsync(bool show)
+    /// <param name="tray">False on a first run, whose setup has nothing to keep running out of sight: closing the window quits.</param>
+    public async Task StartAsync(bool show, bool tray = true)
     {
-        var available = await TrayHost.AvailableAsync();
+        var available = tray && await TrayHost.AvailableAsync();
         if (available && _window.Icon is { } icon)
         {
             _icon = NewIcon(icon);
@@ -48,7 +49,7 @@ internal sealed class Tray
             if (show) ShowWindow();
             return;
         }
-        Log.Warn("app", "no system tray (StatusNotifier host) on this desktop: closing the window quits");
+        if (tray) Log.Warn("app", "no system tray (StatusNotifier host) on this desktop: closing the window quits");
         _desktop.MainWindow = _window;
         _desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
         ShowWindow();
