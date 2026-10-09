@@ -74,3 +74,8 @@ a user group. Add yourself to that group and log in again.
 
 **Logs** are written to `~/.local/share/Flint/logs/`, one file per day, kept for 14 days. To keep them
 somewhere else, set `FLINT_LOG_DIR`. Include the log when you report a problem.
+
+## License
+
+Flint's own code is under the [MIT License](LICENSE). The Spark app's artwork that Flint draws with belongs to
+Positive Grid; it is never part of this repository, and each user takes it from their own copy of the app.
