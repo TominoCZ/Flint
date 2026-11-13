@@ -7,12 +7,15 @@ using Avalonia.Platform;
 namespace Flint.App.Controls;
 
 /// <summary>
-/// An image's outline filled solid in one colour: every pixel not reachable from the edge through fully transparent
-/// pixels, so see-through parts inside the shape (the amps' translucent grilles) are filled too. Laid under the image,
-/// it hides whatever is drawn behind it.
+/// An image's shape filled in one colour, laid under the image to hide whatever is drawn behind it. Pixels at
+/// <see cref="Solid"/> alpha or more (the "not found" picture's translucent amps are 15 %) and transparent holes the
+/// shape encloses are filled solid; fainter ones fade in proportion, so a soft drop shadow stays soft instead of
+/// turning into a block.
 /// </summary>
 internal static class Silhouette
 {
+    private const int Solid = 38;
+
     public static WriteableBitmap? Of(Bitmap source, Color fill)
     {
         if (source.Format?.BitsPerPixel != 32) return null;
@@ -39,12 +42,16 @@ internal static class Silhouette
         }
 
         var result = new WriteableBitmap(source.PixelSize, source.Dpi, PixelFormat.Bgra8888, AlphaFormat.Premul);
-        var solid = (int)(0xFF000000u | (uint)(fill.R << 16 | fill.G << 8 | fill.B));
         var row = new int[w];
         using var locked = result.Lock();
         for (var y = 0; y < h; y++)
         {
-            for (var x = 0; x < w; x++) row[x] = outside[y * w + x] ? 0 : solid;
+            for (var x = 0; x < w; x++)
+            {
+                var i = y * w + x;
+                var alpha = outside[i] ? 0 : pixels[i * 4 + 3] is 0 ? 255 : Math.Min(255, pixels[i * 4 + 3] * 255 / Solid);
+                row[x] = alpha << 24 | fill.R * alpha / 255 << 16 | fill.G * alpha / 255 << 8 | fill.B * alpha / 255; // premultiplied
+            }
             Marshal.Copy(row, 0, locked.Address + y * locked.RowBytes, w);
         }
         return result;

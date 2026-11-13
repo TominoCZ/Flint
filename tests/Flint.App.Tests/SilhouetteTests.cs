@@ -8,7 +8,7 @@ using Flint.App.Controls;
 namespace Flint.App.Tests;
 
 // The connect screen's rings must not show through the amp picture's see-through grille: the picture's silhouette,
-// drawn under it, is solid inside its outline (holes included) and clear outside it.
+// drawn under it, is solid inside its outline (holes included) and clear outside it; a faint shadow gets a faint backing.
 [Collection(Headless.Name)]
 public sealed class SilhouetteTests(Headless headless)
 {
@@ -21,6 +21,7 @@ public sealed class SilhouetteTests(Headless headless)
             for (var y = 1; y <= 3; y++)
                 for (var x = 1; x <= 3; x++)
                     if ((x, y) != (2, 2)) Marshal.WriteInt32(locked.Address + y * locked.RowBytes + x * 4, 0x26262626);
+        using (var locked = source.Lock()) Marshal.WriteInt32(locked.Address + 4 * locked.RowBytes + 2 * 4, 0x13000000); // shadow, half of 38
 
         var silhouette = Silhouette.Of(source, Color.Parse("#101010"))!;
         var pixels = new int[25];
@@ -30,6 +31,7 @@ public sealed class SilhouetteTests(Headless headless)
         Assert.Equal(unchecked((int)0xFF101010), pixels[1 * 5 + 1]); // the ring
         Assert.Equal(0, pixels[0]);                                   // outside
         Assert.Equal(0, pixels[4 * 5 + 3]);
+        Assert.Equal(unchecked((int)0x7F070707), pixels[4 * 5 + 2]); // the shadow: half as opaque
         return Task.CompletedTask;
     });
 }
