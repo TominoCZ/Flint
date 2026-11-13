@@ -17,11 +17,12 @@ namespace Flint.App.Connect;
 /// </summary>
 internal sealed class ConnectScreen : Viewbox
 {
+    private static readonly Color Background = Color.Parse("#101010"); // MainWindow's; the picture's backing hides the rings
     private const double DesignWidth = 360, DesignHeight = 785, RingsCentre = 285, Rings = 372;
 
     private readonly AssetStore _assets;
     private readonly AndroidValues _values;
-    private readonly Image _picture = new() { Stretch = Stretch.Uniform };
+    private readonly Image _picture = new() { Stretch = Stretch.Uniform }, _backing = new() { Stretch = Stretch.Uniform };
     private readonly TextBlock _title, _hint;
     private readonly Button _button;
     private readonly LottieView? _rings;
@@ -34,7 +35,7 @@ internal sealed class ConnectScreen : Viewbox
         var canvas = new Canvas { Width = DesignWidth, Height = DesignHeight, ClipToBounds = false };
         if (assets.Raw("ripple_white_spin.json") is { } rings)
             Place(canvas, _rings = new LottieView(LottieAnimation.Load(rings)) { Width = Rings, Height = Rings, Opacity = 0.1 }, RingsCentre - Rings / 2, (DesignWidth - Rings) / 2);
-        Place(canvas, new Border { Width = DesignWidth, Height = 180, Child = _picture }, RingsCentre - 90, 0);
+        Place(canvas, new Panel { Width = DesignWidth, Height = 180, Children = { _backing, _picture } }, RingsCentre - 90, 0);
 
         _title = new TextBlock { FontSize = 24, FontWeight = FontWeight.SemiBold, Foreground = Brushes.White, TextAlignment = TextAlignment.Center, Width = DesignWidth };
         _hint = new TextBlock
@@ -90,8 +91,9 @@ internal sealed class ConnectScreen : Viewbox
         if (picture != _pictureName && _assets.Image(picture) is not null)
         {
             _pictureName = picture;
-            _picture.Source = _assets.Bitmap(picture);
-            _picture.Width = picture == "spark_brand" ? 148 : 232; // the layout's sparkLogo and ampImageView widths
+            var bitmap = _assets.Bitmap(picture);
+            (_picture.Source, _backing.Source) = (bitmap, Silhouette.Of(bitmap, Background));
+            _picture.Width = _backing.Width = picture == "spark_brand" ? 148 : 232; // the layout's sparkLogo and ampImageView widths
         }
     }
 
